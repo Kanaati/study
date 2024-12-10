@@ -5,87 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Study Room</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: #f4f4f9;
-      color: #333;
-    }
-
-    header {
-      width: 100%;
-      padding: 10px;
-      background: #5a67d8;
-      color: white;
-      text-align: center;
-    }
-
-    .chatbox, .tasklist {
-      width: 80%;
-      margin: 20px auto;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      background: #fff;
-    }
-
-    .chatbox {
-      height: 300px;
-      overflow-y: scroll;
-    }
-
-    .tasklist input, .tasklist button {
-      padding: 10px;
-      margin: 5px 0;
-    }
+    body { font-family: Arial, sans-serif; background: #f4f4f9; }
+    header { background: #5a67d8; color: white; padding: 1rem; text-align: center; }
+    #chatbox { height: 300px; overflow-y: auto; border: 1px solid #ddd; margin: 10px; padding: 10px; }
+    #chatInput { width: 70%; }
+    button { padding: 10px; margin-left: 5px; }
   </style>
 </head>
 <body>
   <header>
-    <h1>Welcome to Our Study Room</h1>
+    <h1>Study Room</h1>
+    <p id="username"></p>
   </header>
+  <div id="chatbox"></div>
+  <input id="chatInput" type="text" placeholder="Type your message...">
+  <button id="sendButton">Send</button>
 
-  <section class="chatbox" id="chatbox">
-    <p>Chat messages will appear here.</p>
-  </section>
-  
-  <section>
-    <input id="chatInput" type="text" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
-  </section>
+  <!-- Firebase setup script -->
+  <script type="module">
+    // Import Firebase services
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-  <section class="tasklist">
-    <h2>Tasks</h2>
-    <ul id="tasks"></ul>
-    <input id="taskInput" type="text" placeholder="Add a task..." />
-    <button onclick="addTask()">Add Task</button>
-  </section>
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKj3jcW_UN13Qv5N3lCVJWUP7EWbfWVDA",
+      authDomain: "studyapp-7a1e8.firebaseapp.com",
+      databaseURL: "https://studyapp-7a1e8-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "studyapp-7a1e8",
+      storageBucket: "studyapp-7a1e8.firebasestorage.app",
+      messagingSenderId: "427061690387",
+      appId: "1:427061690387:web:0857a3c8f7fc835efe7fe6",
+      measurementId: "G-3EPVX02PNZ"
+    };
 
-  <script>
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Prompt for username
+    const username = prompt("Enter your username");
+
+    // DOM Elements
+    const chatbox = document.getElementById("chatbox");
+    const chatInput = document.getElementById("chatInput");
+
+    // Send Message Function
     function sendMessage() {
-      const chatInput = document.getElementById("chatInput");
-      const chatbox = document.getElementById("chatbox");
-      const message = document.createElement("p");
-      message.textContent = chatInput.value;
-      chatbox.appendChild(message);
-      chatInput.value = "";
+      const text = chatInput.value.trim();
+      if (text) {
+        push(ref(database, "messages"), { username, text });
+        chatInput.value = ""; // Clear the input
+      }
     }
 
-    function addTask() {
-      const taskInput = document.getElementById("taskInput");
-      const tasks = document.getElementById("tasks");
-      const task = document.createElement("li");
-      task.textContent = taskInput.value;
-      tasks.appendChild(task);
-      taskInput.value = "";
-    }
+    // Listen for New Messages
+    const messagesRef = ref(database, "messages");
+    onChildAdded(messagesRef, (snapshot) => {
+      const message = snapshot.val();
+      const p = document.createElement("p");
+      p.textContent = `${message.username}: ${message.text}`;
+      chatbox.appendChild(p);
+    });
+
+    // Attach sendMessage to button click
+    document.getElementById("sendButton").onclick = sendMessage;
   </script>
 </body>
 </html>
-
-
-
