@@ -1,15 +1,91 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Page Title</title>
-  </head>
-  
-  <body>
-    
-    <h1>My First Heading</h1>
-    <p>My first paragraph.</p>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Room</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f4f4f9;
+      color: #333;
+    }
 
-  </body>
+    header {
+      width: 100%;
+      padding: 10px;
+      background: #5a67d8;
+      color: white;
+      text-align: center;
+    }
+
+    .chatbox, .tasklist {
+      width: 80%;
+      margin: 20px auto;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #fff;
+    }
+
+    .chatbox {
+      height: 300px;
+      overflow-y: scroll;
+    }
+
+    .tasklist input, .tasklist button {
+      padding: 10px;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome to Our Study Room</h1>
+  </header>
+
+  <section class="chatbox" id="chatbox">
+    <p>Chat messages will appear here.</p>
+  </section>
+  
+  <section>
+    <input id="chatInput" type="text" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+  </section>
+
+  <section class="tasklist">
+    <h2>Tasks</h2>
+    <ul id="tasks"></ul>
+    <input id="taskInput" type="text" placeholder="Add a task..." />
+    <button onclick="addTask()">Add Task</button>
+  </section>
+
+  <script>
+    function sendMessage() {
+      const chatInput = document.getElementById("chatInput");
+      const chatbox = document.getElementById("chatbox");
+      const message = document.createElement("p");
+      message.textContent = chatInput.value;
+      chatbox.appendChild(message);
+      chatInput.value = "";
+    }
+
+    function addTask() {
+      const taskInput = document.getElementById("taskInput");
+      const tasks = document.getElementById("tasks");
+      const task = document.createElement("li");
+      task.textContent = taskInput.value;
+      tasks.appendChild(task);
+      taskInput.value = "";
+    }
+  </script>
+</body>
 </html>
+
 
 
