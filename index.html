@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign In</title>
   <script type="module">
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 
     const firebaseConfig = {
@@ -22,26 +22,26 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
     const db = getFirestore();
+    const provider = new GoogleAuthProvider();
 
-    window.signIn = () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      signInWithEmailAndPassword(auth, email, password)
-        .then(userCredential => {
-          const user = userCredential.user;
-          // Retrieve username from Firestore
+    window.googleSignIn = () => {
+      signInWithPopup(auth, provider)
+        .then(async (result) => {
+          const user = result.user;
           const docRef = doc(db, "users", user.uid);
-          getDoc(docRef).then(docSnap => {
-            if (docSnap.exists()) {
-              const username = docSnap.data().username;
-              localStorage.setItem('username', username);  // Store username in localStorage
-              window.location.href = "chat.html";  // Redirect to chat room
-            }
-          }).catch(error => {
-            alert(error.message);
-          });
+
+          // Check if the user exists in Firestore
+          const docSnap = await getDoc(docRef);
+          if (!docSnap.exists()) {
+            // Save user data if it's the first login
+            await setDoc(docRef, { username: user.displayName });
+          }
+
+          // Save the username in localStorage
+          localStorage.setItem('username', user.displayName);
+          window.location.href = "chat.html"; // Redirect to chat room
         })
-        .catch(error => {
+        .catch((error) => {
           alert(error.message);
         });
     };
@@ -49,16 +49,6 @@
 </head>
 <body>
   <h1>Sign In</h1>
-  <form onsubmit="event.preventDefault(); signIn();">
-    <label for="email">Email:</label>
-    <input type="email" id="email" required>
-    <br>
-    <label for="password">Password:</label>
-    <input type="password" id="password" required>
-    <br>
-    <button type="submit">Sign In</button>
-  </form>
-  <br>
-  <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
+  <button onclick="googleSignIn()">Sign In with Google</button>
 </body>
 </html>
