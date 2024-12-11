@@ -13,6 +13,15 @@
   </style>
 </head>
 <body>
+  <!-- Sign-in Form -->
+  <div id="authContainer">
+    <h2>Sign In or Sign Up</h2>
+    <input id="email" type="email" placeholder="Email" required>
+    <input id="password" type="password" placeholder="Password" required>
+    <button id="signUpButton">Sign Up</button>
+    <button id="signInButton">Sign In</button>
+  </div>
+
   <header>
     <h1>Study Room</h1>
     <p id="username"></p>
@@ -26,6 +35,7 @@
     // Import Firebase services
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
     // Your Firebase configuration
     const firebaseConfig = {
@@ -42,19 +52,49 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
-
-    // Prompt for username
-    const username = prompt("Enter your username");
+    const auth = getAuth(app);
 
     // DOM Elements
     const chatbox = document.getElementById("chatbox");
     const chatInput = document.getElementById("chatInput");
+    const authContainer = document.getElementById("authContainer");
+
+    // Handle User Authentication
+    const signUpButton = document.getElementById("signUpButton");
+    const signInButton = document.getElementById("signInButton");
+
+    signUpButton.onclick = () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          alert("Sign-up successful!");
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    };
+
+    signInButton.onclick = () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          alert("Sign-in successful!");
+          authContainer.style.display = "none"; // Hide sign-in form after successful login
+          username.textContent = `Welcome, ${user.email}`;
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    };
 
     // Send Message Function
     function sendMessage() {
       const text = chatInput.value.trim();
       if (text) {
-        push(ref(database, "messages"), { username, text });
+        push(ref(database, "messages"), { username: auth.currentUser.email, text });
         chatInput.value = ""; // Clear the input
       }
     }
@@ -70,6 +110,16 @@
 
     // Attach sendMessage to button click
     document.getElementById("sendButton").onclick = sendMessage;
+
+    // Monitor authentication state changes
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        username.textContent = `Logged in as ${user.email}`;
+        authContainer.style.display = "none"; // Hide login form after sign-in
+      } else {
+        authContainer.style.display = "block"; // Show login form if not logged in
+      }
+    });
   </script>
 </body>
 </html>
