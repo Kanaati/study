@@ -5,21 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat Room</title>
   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
+    // Firebase configuration
     const firebaseConfig = {
-      apiKey: "your-api-key",
-      authDomain: "your-auth-domain",
-      databaseURL: "your-database-url",
-      projectId: "your-project-id",
-      storageBucket: "your-storage-bucket",
-      messagingSenderId: "your-messaging-sender-id",
-      appId: "your-app-id"
+      apiKey: "AIzaSyBKj3jcW_UN13Qv5N3lCVJWUP7EWbfWVDA",
+      authDomain: "studyapp-7a1e8.firebaseapp.com",
+      databaseURL: "https://studyapp-7a1e8-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "studyapp-7a1e8",
+      storageBucket: "studyapp-7a1e8.firebasestorage.app",
+      messagingSenderId: "427061690387",
+      appId: "1:427061690387:web:0857a3c8f7fc835efe7fe6"
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
+    const auth = getAuth(app);
 
+    // Listen for auth state changes
     onAuthStateChanged(auth, (user) => {
       if (user) {
         const username = user.displayName || "Guest";
@@ -31,6 +35,6 @@
   </script>
 </head>
 <body>
-  <h1 id="welcome"></h1>
+  <h1 id="welcome">Loading...</h1>
 </body>
 </html>
