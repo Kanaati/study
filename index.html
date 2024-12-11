@@ -53,6 +53,7 @@
       if (user) {
         document.getElementById("username").textContent = `Welcome, ${user.displayName}`;
         username = user.displayName; // Use Google user's display name as username
+        console.log("User signed in:", user);
       } else {
         document.getElementById("username").textContent = "Please sign in.";
         username = null; // Reset username if not signed in
@@ -69,6 +70,7 @@
         })
         .catch((error) => {
           console.error("Sign-in error:", error.message);
+          alert("Error signing in: " + error.message); // Provide error feedback to the user
         });
     }
     
