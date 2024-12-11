@@ -20,18 +20,13 @@
   <div id="chatbox"></div>
   <input id="chatInput" type="text" placeholder="Type your message...">
   <button id="sendButton">Send</button>
-  <button id="googleSignInButton">Sign in with Google</button>
 
   <!-- Firebase setup script -->
   <script type="module">
     // Import Firebase services
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
-    const auth = getAuth();
-    const provider = new GoogleAuthProvider();
-    
     // Your Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBKj3jcW_UN13Qv5N3lCVJWUP7EWbfWVDA",
@@ -48,49 +43,19 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    // Authentication state listener
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById("username").textContent = `Welcome, ${user.displayName}`;
-        username = user.displayName; // Use Google user's display name as username
-        console.log("User signed in:", user);
-      } else {
-        document.getElementById("username").textContent = "Please sign in.";
-        username = null; // Reset username if not signed in
-      }
-    });
+    // Prompt for username
+    const username = prompt("Enter your username");
 
-    // Function to handle Google Sign-In
-    function googleSignIn() {
-      signInWithPopup(auth, provider)
-        .then((result) => {
-          const user = result.user;
-          console.log("User signed in:", user);
-          alert(`Welcome ${user.displayName}!`);
-        })
-        .catch((error) => {
-          console.error("Sign-in error:", error.message);
-          alert("Error signing in: " + error.message); // Provide error feedback to the user
-        });
-    }
-    
-    // Attach the function to a button
-    document.getElementById("googleSignInButton").onclick = googleSignIn;
-    
     // DOM Elements
     const chatbox = document.getElementById("chatbox");
     const chatInput = document.getElementById("chatInput");
 
     // Send Message Function
     function sendMessage() {
-      if (username) {
-        const text = chatInput.value.trim();
-        if (text) {
-          push(ref(database, "messages"), { username, text });
-          chatInput.value = ""; // Clear the input
-        }
-      } else {
-        alert("Please sign in to send messages.");
+      const text = chatInput.value.trim();
+      if (text) {
+        push(ref(database, "messages"), { username, text });
+        chatInput.value = ""; // Clear the input
       }
     }
 
