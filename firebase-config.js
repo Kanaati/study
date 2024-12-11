@@ -1,6 +1,6 @@
-// Import Firebase SDK modules
-import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+// Import Firebase from CDN
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -19,14 +19,13 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Sign in with Google
+// Sign in with Google function
 window.googleSignIn = () => {
   signInWithPopup(auth, provider)
     .then((result) => {
       const user = result.user;
       console.log(`Welcome ${user.displayName}`);
-      // Redirect to chat page
-      window.location.href = "chat.html";
+      window.location.href = "chat.html"; // Redirect on success
     })
     .catch((error) => {
       console.error("Error signing in:", error.message);
