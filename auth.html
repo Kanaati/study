@@ -1,1 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentication</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
+    h2 { text-align: center; }
+    .container { max-width: 400px; margin: 0 auto; }
+    input { display: block; width: 100%; margin: 10px 0; padding: 10px; }
+    button { width: 100%; padding: 10px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Welcome to Study App</h2>
+    <input id="email" type="email" placeholder="Email" required>
+    <input id="password" type="password" placeholder="Password" required>
+    <button id="signUpButton">Sign Up</button>
+    <button id="signInButton">Sign In</button>
+
+    <div id="usernameSetup" style="display:none;">
+      <input id="username" type="text" placeholder="Set your username" required>
+      <button id="setUsernameButton">Set Username</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKj3jcW_UN13Qv5N3lCVJWUP7EWbfWVDA",
+      authDomain: "studyapp-7a1e8.firebaseapp.com",
+      databaseURL: "https://studyapp-7a1e8-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "studyapp-7a1e8",
+      storageBucket: "studyapp-7a1e8.firebasestorage.app",
+      messagingSenderId: "427061690387",
+      appId: "1:427061690387:web:0857a3c8f7fc835efe7fe6",
+      measurementId: "G-3EPVX02PNZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    const signUpButton = document.getElementById("signUpButton");
+    const signInButton = document.getElementById("signInButton");
+    const setUsernameButton = document.getElementById("setUsernameButton");
+    const usernameSetup = document.getElementById("usernameSetup");
+
+    // Sign Up Logic
+    signUpButton.onclick = () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          alert("Sign-up successful!");
+          usernameSetup.style.display = "block";
+        })
+        .catch((error) => alert(error.message));
+    };
+
+    // Sign In Logic
+    signInButton.onclick = () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          alert("Sign-in successful!");
+          usernameSetup.style.display = "block";
+        })
+        .catch((error) => alert(error.message));
+    };
+
+    // Set Username
+    setUsernameButton.onclick = () => {
+      const username = document.getElementById("username").value;
+      const user = auth.currentUser;
+
+      if (user && username) {
+        set(ref(database, `users/${user.uid}`), { username })
+          .then(() => {
+            alert("Username set!");
+            window.location.href = "chat.html";
+          })
+          .catch((error) => alert(error.message));
+      }
+    };
+  </script>
+</body>
+</html>
 
