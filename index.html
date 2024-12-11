@@ -4,10 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign In</title>
-  <script type="module" src="firebase-config.js"></script> <!-- Link to your config file -->
+  <!-- Import Firebase Authentication -->
+  <script type="module" src="firebase-config.js"></script>
 </head>
 <body>
   <h1>Sign In</h1>
-  <button onclick="googleSignIn()">Sign in with Google</button>
+  <button id="googleSignInBtn">Sign in with Google</button>
+
+  <script>
+    // Attach the button to the googleSignIn function
+    document.getElementById('googleSignInBtn').addEventListener('click', () => {
+      if (typeof googleSignIn === "function") {
+        googleSignIn();
+      } else {
+        console.error("googleSignIn is not defined. Check firebase-config.js.");
+      }
+    });
+  </script>
 </body>
 </html>
