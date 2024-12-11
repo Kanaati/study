@@ -23,14 +23,12 @@ const provider = new GoogleAuthProvider();
 window.googleSignIn = () => {
   signInWithPopup(auth, provider)
     .then((result) => {
-      // User info
       const user = result.user;
       console.log(`Welcome ${user.displayName}`);
-      // Redirect to chat or another page
+      // Redirect to chat page
       window.location.href = "chat.html";
     })
     .catch((error) => {
       console.error("Error signing in:", error.message);
     });
 };
-
