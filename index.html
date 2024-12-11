@@ -6,6 +6,7 @@
   <title>Sign In</title>
   <script type="module">
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 
     const firebaseConfig = {
@@ -20,13 +21,25 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
+    const db = getFirestore();
 
     window.signIn = () => {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          window.location.href = "chat.html"; // Redirect to chatroom
+        .then(userCredential => {
+          const user = userCredential.user;
+          // Retrieve username from Firestore
+          const docRef = doc(db, "users", user.uid);
+          getDoc(docRef).then(docSnap => {
+            if (docSnap.exists()) {
+              const username = docSnap.data().username;
+              localStorage.setItem('username', username);  // Store username in localStorage
+              window.location.href = "chat.html";  // Redirect to chat room
+            }
+          }).catch(error => {
+            alert(error.message);
+          });
         })
         .catch(error => {
           alert(error.message);
@@ -46,7 +59,6 @@
     <button type="submit">Sign In</button>
   </form>
   <br>
-  <!-- Add the Sign Up button -->
   <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
 </body>
 </html>
