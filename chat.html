@@ -1,64 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Study Room</title>
-</head>
-<body>
-  <header>
-    <h1>Study Room</h1>
-    <p id="welcomeMessage"></p>
-  </header>
-  <div id="chatbox"></div>
-  <input id="chatInput" type="text" placeholder="Type your message...">
-  <button id="sendButton">Send</button>
+<script type="module">
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  const firebaseConfig = { /* Same Config */ };
 
-    const firebaseConfig = { /* Your Firebase Config */ };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const database = getDatabase(app);
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    const auth = getAuth(app);
-
-    let currentUsername = "";
-
-    // Monitor Authentication State
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const userRef = ref(database, `users/${user.uid}`);
-        get(userRef).then((snapshot) => {
-          if (snapshot.exists()) {
-            currentUsername = snapshot.val().username;
-            document.getElementById("welcomeMessage").textContent = `Welcome, ${currentUsername}`;
-          }
-        });
-      } else {
-        window.location.href = "auth.html";
-      }
-    });
-
-    // Send Message Logic
-    document.getElementById("sendButton").onclick = () => {
-      const text = document.getElementById("chatInput").value;
-      if (text) {
-        push(ref(database, "messages"), { username: currentUsername, text });
-        document.getElementById("chatInput").value = "";
-      }
-    };
-
-    // Display Messages
-    const messagesRef = ref(database, "messages");
-    onChildAdded(messagesRef, (snapshot) => {
-      const message = snapshot.val();
-      const p = document.createElement("p");
-      p.textContent = `${message.username}: ${message.text}`;
-      document.getElementById("chatbox").appendChild(p);
-    });
-  </script>
-</body>
-</html>
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const userRef = ref(database, `users/${user.uid}`);
+      onValue(userRef, (snapshot) => {
+        const { username } = snapshot.val();
+        document.getElementById("welcome").textContent = `${username} has entered the study room.`;
+      });
+    } else {
+      window.location.href = "auth.html";
+    }
+  });
+</script>
