@@ -1,35 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Authentication</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
-    h2 { text-align: center; }
-    .container { max-width: 400px; margin: 0 auto; }
-    input { display: block; width: 100%; margin: 10px 0; padding: 10px; }
-    button { width: 100%; padding: 10px; margin: 10px 0; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Welcome to Study App</h2>
-    <input id="email" type="email" placeholder="Email" required>
-    <input id="password" type="password" placeholder="Password" required>
-    <button id="signUpButton">Sign Up</button>
-    <button id="signInButton">Sign In</button>
-
-    <div id="usernameSetup" style="display:none;">
-      <input id="username" type="text" placeholder="Set your username" required>
-      <button id="setUsernameButton">Set Username</button>
-    </div>
-  </div>
-
+  <title>Sign In</title>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getDatabase, ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBKj3jcW_UN13Qv5N3lCVJWUP7EWbfWVDA",
@@ -46,50 +22,38 @@
     const auth = getAuth(app);
     const database = getDatabase(app);
 
-    const signUpButton = document.getElementById("signUpButton");
-    const signInButton = document.getElementById("signInButton");
-    const setUsernameButton = document.getElementById("setUsernameButton");
-    const usernameSetup = document.getElementById("usernameSetup");
-
-    // Sign Up Logic
-    signUpButton.onclick = () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          alert("Sign-up successful!");
-          usernameSetup.style.display = "block";
-        })
-        .catch((error) => alert(error.message));
-    };
-
-    // Sign In Logic
-    signInButton.onclick = () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          alert("Sign-in successful!");
-          usernameSetup.style.display = "block";
-        })
-        .catch((error) => alert(error.message));
-    };
-
-    // Set Username
-    setUsernameButton.onclick = () => {
+    document.getElementById("signInButton").onclick = () => {
       const username = document.getElementById("username").value;
-      const user = auth.currentUser;
+      const password = document.getElementById("password").value;
 
-      if (user && username) {
-        set(ref(database, `users/${user.uid}`), { username })
-          .then(() => {
-            alert("Username set!");
-            window.location.href = "chat.html";
-          })
-          .catch((error) => alert(error.message));
-      }
+      // Find the email corresponding to the username
+      const dbRef = ref(database, "users");
+      const userQuery = query(dbRef, orderByChild("username"), equalTo(username));
+
+      get(userQuery).then((snapshot) => {
+        if (snapshot.exists()) {
+          const userData = Object.values(snapshot.val())[0];
+          const email = userData.email;
+
+          // Authenticate user
+          signInWithEmailAndPassword(auth, email, password)
+            .then(() => {
+              alert("Welcome back! Click 'Enter Chatroom' to continue.");
+              document.getElementById("chatButton").disabled = false;
+            })
+            .catch((error) => alert(error.message));
+        } else {
+          alert("Username not found.");
+        }
+      });
     };
   </script>
+</head>
+<body>
+  <h1>Sign In</h1>
+  <input type="text" id="username" placeholder="Username" required><br>
+  <input type="password" id="password" placeholder="Password" required><br>
+  <button id="signInButton">Sign In</button>
+  <button id="chatButton" disabled onclick="window.location.href='chat.html'">Enter Chatroom</button>
 </body>
 </html>
-
