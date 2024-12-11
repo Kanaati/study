@@ -32,7 +32,7 @@
           const user = userCredential.user;
           set(ref(database, `users/${user.uid}`), { username, email });
           alert("Account created! Redirecting to login...");
-          window.location.href = "signin.html";
+          window.location.href = "index.html";
         })
         .catch((error) => alert(error.message));
     };
